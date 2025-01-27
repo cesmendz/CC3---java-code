@@ -1,0 +1,220 @@
+import java.util.Random;
+import java.util.Scanner;
+
+// Character class representing the player's character
+class Character {
+    private String name; // Character's name
+    private String job; // Character's job (Archer, Warrior, Mage, Assassin)
+    private int health; // Character's health points
+    private int damage; // Character's base damage
+    private int speed; // Character's speed for determining attack order
+    private int exp; // Experience points
+    private int level; // Character's level
+    private static final int EXP_THRESHOLD = 10; // Experience points needed to level up
+
+    // Constructor to initialize the character with a name and job
+    public Character(String name, String job) {
+        this.name = name;
+        this.job = job;
+        this.level = 1; // Start at level 1
+        setJobStats(job); // Set stats based on the chosen job
+        this.exp = 0; // Start with 0 experience points
+    }
+
+    // Method to set character stats based on the job
+    private void setJobStats(String job) {
+        switch (job.toLowerCase()) {
+            case "archer":
+                this.health = 80;
+                this.damage = 10;
+                this.speed = 8;
+                break;
+            case "warrior":
+                this.health = 100;
+                this.damage = 12;
+                this.speed = 6;
+                break;
+            case "mage":
+                this.health = 70;
+                this.damage = 15;
+                this.speed = 7;
+                break;
+            case "assassin":
+                this.health = 75;
+                this.damage = 14;
+                this.speed = 9;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid job"); // Handle invalid job input
+        }
+    }
+
+    // Method for the character to attack an enemy
+    public void attack(Enemy enemy, int attackChoice) {
+        int attackDamage = this.damage; // Base damage
+        switch (attackChoice) {
+            case 1:
+                attackDamage += 2; // Special attack 1
+                System.out.println(name + " uses a special attack 1!");
+                break;
+            case 2:
+                attackDamage += 3; // Special attack 2
+                System.out.println(name + " uses a special attack 2!");
+                break;
+            case 3:
+                attackDamage += 1; // Special attack 3
+                System.out.println(name + " uses a special attack 3!");
+                break;
+            case 4:
+                attackDamage += 4; // Special attack 4
+                System.out.println(name + " uses a special attack 4!");
+                break;
+            default:
+                System.out.println("Invalid attack choice."); // Handle invalid attack choice
+                return;
+        }
+        enemy.takeDamage(attackDamage); // Inflict damage on the enemy
+        System.out.println(name + " dealt " + attackDamage + " damage to " + enemy.getName());
+    }
+
+    // Method to gain experience points
+    public void gainExp(int exp) {
+        this.exp += exp; // Add gained experience
+        System.out.println(name + " gained " + exp + " EXP!");
+        checkLevelUp(); // Check if the character can level up
+    }
+
+    // Method to check if the character can level up
+    private void checkLevelUp() {
+        if (this.exp >= EXP_THRESHOLD) {
+            this.level++; // Increase level
+            this.exp -= EXP_THRESHOLD; // Reset experience points
+            this.health += 2; // Increase health
+            this.damage += 2; // Increase damage
+            this.speed += 1; // Increase speed
+            System.out.println(name + " leveled up to level " + level + "!");
+        }
+    }
+
+    // Method to check if the character is still alive
+    public boolean isAlive() {
+        return this.health > 0;
+    }
+
+    // Method to take damage from an enemy attack
+    public void takeDamage(int damage) {
+        this.health -= damage; // Reduce health
+        System.out.println(name + " has " + this.health + " health left.");
+    }
+
+    // Getter for character's name
+    public String getName() {
+        return name;
+    }
+
+    // Getter for character's speed
+    public int getSpeed() {
+        return speed;
+    }
+}
+
+// Enemy class representing the enemies the player will encounter
+class Enemy {
+    private String name; // Enemy's name
+    private int health; // Enemy's health points
+    private int damage; // Enemy's damage
+
+    // Constructor to initialize the enemy with a name, health, and damage
+    public Enemy(String name, int health, int damage) {
+        this.name = name; this.health = health;
+        this.damage = damage;
+    }
+
+    // Method to take damage from a character's attack
+    public void takeDamage(int damage) {
+        this.health -= damage; // Reduce health
+        System.out.println(name + " has " + this.health + " health left.");
+    }
+
+    // Method to check if the enemy is still alive
+    public boolean isAlive() {
+        return this.health > 0;
+    }
+
+    // Getter for enemy's name
+    public String getName() {
+        return name;
+    }
+
+    // Getter for enemy's damage
+    public int getDamage() {
+        return damage;
+    }
+}
+
+// Main class to run the RPG game
+public class RPGGame {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in); // Scanner for user input
+        Random random = new Random(); // Random object for random attacks
+        boolean playAgain; // Variable to control game loop
+
+        do {
+            System.out.println("Welcome to the RPG Game!");
+            System.out.print("Enter your character's name: ");
+            String name = scanner.nextLine(); // Get character's name
+
+            System.out.print("Choose your job (Archer, Warrior, Mage, Assassin): ");
+            String job = scanner.nextLine(); // Get character's job
+
+            Character player = new Character(name, job); // Create player character
+            Enemy[] enemies = {
+                new Enemy("Goblin", 30, 5),
+                new Enemy("Orc", 50, 7),
+                new Enemy("Troll", 70, 10),
+                new Enemy("Dragon", 100, 15),
+                new Enemy("Dark Lord", 150, 20) // Boss enemy
+            };
+
+            // Loop through each enemy for encounters
+            for (Enemy enemy : enemies) {
+                System.out.println("A wild " + enemy.getName() + " appears!");
+                while (enemy.isAlive() && player.isAlive()) {
+                    // Determine attack order based on speed
+                    if (player.getSpeed() >= enemy.getDamage()) {
+                        System.out.println("Choose your attack (1-4): ");
+                        int attackChoice = scanner.nextInt(); // Get attack choice
+                        player.attack(enemy, attackChoice); // Player attacks enemy
+                        if (enemy.isAlive()) {
+                            player.takeDamage(enemy.getDamage()); // Enemy attacks back
+                        }
+                    } else {
+                        player.takeDamage(enemy.getDamage()); // Enemy attacks first
+                        if (player.isAlive()) {
+                            System.out.println(player.getName() + " attacks " + enemy.getName());
+                            player.attack(enemy, random.nextInt(4) + 1); // Random attack
+                        }
+                    }
+                }
+
+                // Check if player is defeated
+                if (!player.isAlive()) {
+                    System.out.println("Game Over! " + player.getName() + " has been defeated.");
+                    break; // Exit the encounter loop
+                } else {
+                    player.gainExp(5); // Gain experience for defeating the enemy
+                }
+            }
+
+            // Ask if the player wants to play again
+            System.out.print("Do you want to play again? (yes/no): ");
+            String response = scanner.next();
+            playAgain = response.equalsIgnoreCase("yes"); // Check response
+            scanner.nextLine(); // Consume newline
+
+        } while (playAgain); // Repeat if player wants to play again
+
+        System.out.println("Thank you for playing!"); // End of game message
+        scanner.close(); // Close the scanner
+    }
+}
