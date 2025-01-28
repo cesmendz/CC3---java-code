@@ -104,7 +104,7 @@ class Character {
     // Method to take damage from an enemy attack
     public void takeDamage(int damage) {
         this.health -= damage; // Reduce health
-        System.out.println(name + " has " + this.health + " health left.");
+        System.out.println(name + " has " + this.health + " health left.\n");
     }
 
     // Getter for character's name
@@ -161,11 +161,12 @@ public class RPGGame {
 
         do {
             System.out.println("Welcome to the RPG Game!");
-            System.out.print("Enter your character's name: ");
+            System.out.print("Enter your Character's name: ");
             String name = scanner.nextLine(); // Get character's name
 
-            System.out.print("Choose your job (Archer, Warrior, Mage, Assassin): ");
+            System.out.print("Choose your Job (Archer, Warrior, Mage, Assassin): ");
             String job = scanner.nextLine(); // Get character's job
+
 
             Character player = new Character(name, job); // Create player character
             Enemy[] enemies = {
@@ -178,7 +179,7 @@ public class RPGGame {
 
             // Loop through each enemy for encounters
             for (Enemy enemy : enemies) {
-                System.out.println("A wild " + enemy.getName() + " appears!");
+                System.out.println("A wild " + enemy.getName() + " appears!\n");
                 while (enemy.isAlive() && player.isAlive()) {
                     // Determine attack order based on speed
                     if (player.getSpeed() >= enemy.getDamage()) {
