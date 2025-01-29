@@ -1,0 +1,171 @@
+import java.util.Random;
+import java.util.Scanner;
+
+class Character {
+    private String name;
+    private String job;
+    private int health;
+    private int damage;
+    private int speed;
+    private int exp;
+    private int level;
+
+    public Character(String name, String job, int health, int damage, int speed) {
+        this.name = name;
+        this.job = job;
+        this.health = health;
+        this.damage = damage;
+        this.speed = speed;
+        this.exp = 0;
+        this.level = 1;
+    }
+
+    public void attack(Enemy enemy, int attackChoice) {
+        int attackDamage = switch (attackChoice) {
+            case 1 -> damage;
+            case 2 -> damage + 5;
+            case 3 -> damage - 2;
+            case 4 -> damage * 2;
+            default -> damage;
+        };
+        enemy.takeDamage(attackDamage);
+        System.out.println(name + " attacked " + enemy.getName() + " for " + attackDamage + " damage!");
+    }
+
+    public void takeDamage(int dmg) {
+        health -= dmg;
+        System.out.println(name + " took " + dmg + " damage! Remaining health: " + health);
+    }
+
+    public boolean isAlive() {
+        return health > 0;
+    }
+
+    public void gainExp(int expGain) {
+        exp += expGain;
+        System.out.println(name + " gained " + expGain + " EXP!");
+        if (exp >= level * 10) {
+            levelUp();
+        }
+    }
+
+    private void levelUp() {
+        level++;
+        exp = 0;
+        health += 10;
+        damage += 2;
+        speed += 1;
+        System.out.println(name + " leveled up! Now at level " + level);
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public boolean isFasterThan(Enemy enemy) {
+        return this.speed > enemy.getSpeed();
+    }
+}
+
+class Enemy {
+    private String name;
+    private int health;
+    private int damage;
+    private int speed;
+
+    public Enemy(String name, int health, int damage, int speed) {
+        this.name = name;
+        this.health = health;
+        this.damage = damage;
+        this.speed = speed;
+    }
+
+    public void takeDamage(int dmg) {
+        health -= dmg;
+    }
+
+    public boolean isAlive() {
+        return health > 0;
+    }
+
+    public void attack(Character player) {
+        player.takeDamage(damage);
+        System.out.println(name + " attacked for " + damage + " damage!");
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+
+        while (true) {
+            System.out.println("Enter your character name: ");
+            String name = scanner.nextLine();
+
+            System.out.println("Choose a job: 1. Archer 2. Warrior 3. Mage 4. Assassin");
+            int jobChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            Character player = switch (jobChoice) {
+                case 1 -> new Character(name, "Archer", 80, 15, 12);
+                case 2 -> new Character(name, "Warrior", 120, 20, 8);
+                case 3 -> new Character(name, "Mage", 70, 25, 10);
+                case 4 -> new Character(name, "Assassin", 90, 18, 15);
+                default -> new Character(name, "Warrior", 100, 10, 10);
+            };
+
+            Enemy[] enemies = {
+                    new Enemy("Goblin", 50, 10, 5),
+                    new Enemy("Orc", 80, 15, 7),
+                    new Enemy("Dark Mage", 60, 20, 9),
+                    new Enemy("Knight", 100, 18, 6),
+                    new Enemy("Dragon", 200, 25, 12)
+            };
+
+            for (Enemy enemy : enemies) {
+                System.out.println("A wild " + enemy.getName() + " appeared!");
+
+                while (player.isAlive() && enemy.isAlive()) {
+                    if (player.isFasterThan(enemy)) {
+                        System.out.println("Choose attack: 1. Normal 2. Strong 3. Quick 4. Ultimate");
+                        int attackChoice = scanner.nextInt();
+                        player.attack(enemy, attackChoice);
+                        if (enemy.isAlive()) {
+                            enemy.attack(player);
+                        }
+                    } else {
+                        enemy.attack(player);
+                        if (player.isAlive()) {
+                            System.out.println("Choose attack: 1. Normal 2. Strong 3. Quick 4. Ultimate");
+                            int attackChoice = scanner.nextInt();
+                            player.attack(enemy, attackChoice);
+                        }
+                    }
+                }
+
+                if (!player.isAlive()) {
+                    System.out.println("You have been defeated! Game Over.");
+                    break;
+                } else {
+                    player.gainExp(10);
+                }
+            }
+
+            System.out.println("Game Over! Do you want to restart? (yes/no)");
+            String restart = scanner.next();
+            if (!restart.equalsIgnoreCase("yes")) {
+                break;
+            }
+        }
+        scanner.close();
+    }
+}
