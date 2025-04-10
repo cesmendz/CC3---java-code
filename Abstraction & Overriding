@@ -1,0 +1,62 @@
+// Abstract class representing a human 
+abstract class Human {
+    protected String name;
+    protected int age;
+
+    public Human(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    // Abstract method to talk
+    public abstract void talk(String sentence);
+}
+
+// Student class extending Human
+class Student extends Human {
+    private String studentID;
+
+    public Student(String name, int age, String studentID) {
+        super(name, age);
+        this.studentID = studentID;
+    }
+
+    // Overriding talk method
+    @Override
+    public void talk(String sentence) {
+        System.out.println("Student " + name + " says: " + sentence);
+    }
+}
+
+// Instructor class extending Human
+class Instructor extends Human {
+    private String facultyID;
+
+    public Instructor(String name, int age, String facultyID) {
+        super(name, age);
+        this.facultyID = facultyID;
+    }
+
+    // Overriding talk method
+    @Override
+    public void talk(String sentence) {
+        System.out.println("Instructor " + name + " says: " + sentence);
+    }
+
+    // Method to teach
+    public void teach(String subject) {
+        System.out.println("Instructor " + name + " is teaching: " + subject);
+    }
+}
+
+// Main class to demonstrate the functionality
+public class AbstractionAndOverriding {
+    public static void main(String[] args) {
+        Student student = new Student("Alice", 20, "S12345");
+        Instructor instructor = new Instructor("Dr. Smith", 45, "F98765");
+
+        student.talk("Hello, I am a student.");
+        instructor.talk("Welcome to the course.");
+        instructor.teach("Object-Oriented Programming");
+    }
+}
